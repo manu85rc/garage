@@ -2,17 +2,21 @@ services:
   php:
     image: php:8.2-fpm-alpine
     volumes:
-      - ./public:/var/www/html
+      - .:/var/www/html
     working_dir: /var/www/html
     networks:
       - app-network
     depends_on:
       - mariadb
-
+    command: >
+      sh -c "apk add --no-cache $PHPIZE_DEPS
+      && apk add --no-cache libpng-dev libzip-dev zip unzip
+      && docker-php-ext-install pdo pdo_mysql mysqli zip
+      && php-fpm"
   web:
     image: nginx:alpine
     volumes:
-      - ./public:/var/www/html
+      - .:/var/www/html
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "${APP_PORT:-87}:80"
@@ -33,7 +37,19 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - app-network
-
+  phpmyadmin:
+    networks:
+      - app-network
+    image: phpmyadmin
+    restart: always
+    ports:
+        - '${APP_PORT_PHPMYADMIN:-82}:80'
+    environment:
+        - PMA_ARBITRARY=1
+    depends_on:
+        - mariadb
+    links:
+        - mariadb:db
 networks:
   app-network:
     driver: bridge
