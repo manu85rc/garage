@@ -17,9 +17,11 @@ Route::put('/estacionamiento/{id}', [EstacionamientoController::class, 'update']
 Route::get('/estacionamiento/{id}/facturar', [EstacionamientoController::class, 'facturar'])->name('estacionamiento.facturar');
 Route::post('/estacionamiento/{id}/facturar', [EstacionamientoController::class, 'procesarFactura'])->name('estacionamiento.procesar-factura');
 
-
-
-
+Route::get('/estacionamiento/caja', [EstacionamientoController::class, 'caja'])->name('estacionamiento.caja');
+Route::post('/estacionamiento/editcaja', [EstacionamientoController::class, 'editCaja'])->name('estacionamiento.edit.caja');
+Route::get('/hora', function () {
+    return view('hora');
+});
 
 
 

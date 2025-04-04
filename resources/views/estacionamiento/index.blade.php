@@ -6,7 +6,10 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h2>Control de Estacionamiento</h2>
+                    <h1>  
+
+             
+                    </h1>
                 </div>
                 <div class="card-body">
                     @if (session('success'))
@@ -24,9 +27,9 @@
                     <!-- Formulario para ingresar patente -->
                     <form action="{{ route('estacionamiento.store') }}" method="POST" class="mb-4">
                         @csrf
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3 inputpatente">
                             <input type="text" name="patente" class="form-control @error('patente') is-invalid @enderror" 
-                                   placeholder="Ingrese la patente (3-8 caracteres)" 
+                                   placeholder="" 
                                    maxlength="8" 
                                    minlength="3" 
                                    oninput="this.value = this.value.toUpperCase()" 
@@ -40,7 +43,12 @@
                             @enderror
                         </div>
                     </form>
-                    
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const input = document.querySelector('input[name="patente"]');
+                            input.focus();
+                        });
+                        </script>
                     <!-- Tabla de registros -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped">
@@ -60,13 +68,15 @@
                                     <tr class="{{ is_null($estacionamiento->salida) ? 'table-warning' : '' }}">
                                         <td>{{ $estacionamiento->id }}</td>
                                         <td>{{ $estacionamiento->patente }}</td>
-                                        <td>{{ $estacionamiento->ingreso->format('H:i') }}</td>
+                                        <td>{{ $estacionamiento->ingreso->format('H:i') }}      {{ $estacionamiento->ingreso->format('d/m') == now()->format('d/m') ? '':$estacionamiento->ingreso->format('d/m') }}</td>
                                         <td>{{ $estacionamiento->salida ? $estacionamiento->salida->format('H:i') : 'Pendiente' }}</td>
-                                        <td>{{ $estacionamiento->servicio }}</td>
-                                        <td>{{ $estacionamiento->total ? '$' . number_format($estacionamiento->total, 2) : 'Pendiente' }}</td>
+                                        <td>
+                                            
+                                            <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="serv">{{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}   </a>
+                                        </td>
+                                        <td>{{ $estacionamiento->total ? '$' . number_format($estacionamiento->total, 0) : 'Pendiente' }}</td>
                                         <td>
                                             @if (is_null($estacionamiento->salida))
-                                                <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="btn btn-sm btn-info">Editar Servicio</a>
                                                 <a href="{{ route('estacionamiento.facturar', $estacionamiento->id) }}" class="btn btn-sm btn-success">Facturar</a>
                                             @else
                                                 <span class="badge bg-secondary">Completado</span>
@@ -78,6 +88,18 @@
                                         <td colspan="7" class="text-center">No hay registros disponibles</td>
                                     </tr>
                                 @endforelse
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        {{-- No hay registros disponibles --}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">  
+                                        <b>{{$total}}</b>
+                                    </a>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

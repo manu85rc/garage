@@ -21,7 +21,7 @@
                             {{ $horas }} hora(s) y {{ $minutos }} minuto(s)
                         </p>
                         <p><strong>Servicio:</strong> {{ $estacionamiento->servicio }}</p>
-                        <p><strong>Total a pagar:</strong> ${{ number_format($total, 2) }}</p>
+                        <p><strong>Total a pagar:</strong> <b>${{ number_format($total, 0) }}</b></p>
                     </div>
                     
                     <form action="{{ route('estacionamiento.procesar-factura', $estacionamiento->id) }}" method="POST">

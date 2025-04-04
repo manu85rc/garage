@@ -28,11 +28,11 @@
                             <select name="servicio" id="servicio" class="form-select @error('servicio') is-invalid @enderror" required>
                                 <option value="xHora" {{ $estacionamiento->servicio == 'xHora' ? 'selected' : '' }}>Por Hora Auto 🚗</option>
                                 <option value="xHoraMoto" {{ $estacionamiento->servicio == 'xHoraMoto' ? 'selected' : '' }}>Por Hora Moto 🏍️</option>
-                                <option value="Estadía6" {{ $estacionamiento->servicio == 'Estadía6' ? 'selected' : '' }}>Estadía ($12.000)</option>
-                                <option value="Estadía12" {{ $estacionamiento->servicio == 'Estadía12' ? 'selected' : '' }}>Estadía ($15.000)</option>
-                                <option value="Estadía24" {{ $estacionamiento->servicio == 'Estadía24' ? 'selected' : '' }}>Estadía ($25.000)</option>
-                                <option value="Lavado13" {{ $estacionamiento->servicio == 'Lavado13' ? 'selected' : '' }}>Lavado ($13.000)</option>
-                                <option value="Lavado16" {{ $estacionamiento->servicio == 'Lavado16' ? 'selected' : '' }}>Lavado ($16.000)</option>
+                                <option value="Estadía6" {{ $estacionamiento->servicio == 'Estadía6' ? 'selected' : '' }}>Estadía 6Hs ($12.000)</option>
+                                <option value="Estadía12" {{ $estacionamiento->servicio == 'Estadía12' ? 'selected' : '' }}>Estadía 12Hs ($15.000)</option>
+                                <option value="Estadía24" {{ $estacionamiento->servicio == 'Estadía24' ? 'selected' : '' }}>Estadía 25hs ($25.000)</option>
+                                <option value="Lavado13" {{ $estacionamiento->servicio == 'Lavado13' ? 'selected' : '' }}>Lavado 🚗($13.000)</option>
+                                <option value="Lavado16" {{ $estacionamiento->servicio == 'Lavado16' ? 'selected' : '' }}>Lavado 🚚($16.000)</option>
                             </select>
                             
                             @error('servicio')
