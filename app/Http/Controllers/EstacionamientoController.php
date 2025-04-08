@@ -14,11 +14,39 @@ class EstacionamientoController extends Controller
      */
     public function index()
     {
-        $estacionamientos = Estacionamiento::orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
+        $estacionamientos = Estacionamiento::whereNull('cajasid')->orderBy('total', 'asc')->orderBy('salida', 'desc')->get();
 
-        $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $estacionamientos->sum('total'), 0);
+
+
+        $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
+
+
+
+        $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $efectivo->sum('total'), 0);
+        
 
         $total = '$' . $subtotal ?? 'nulo';
+        // echo $estacionamientos->mediodepago??'';
+        // exit;
+
+        // switch ($estacionamientos->mediodepago) {
+        //     case null:
+        //         $tot = '';
+        //         break;
+        //     case 'efectivo':
+        //         $tot = '$' . number_format($estacionamientos->total);
+        //         break;
+        //     default:
+        //         $tot = '$' . number_format($estacionamientos->total);//.$estacionamientos->mediodepago;
+        // }
+
+       $estacionamientos->map(function ($estacionamiento) {
+            $estacionamiento->mediodepago = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
+            return $estacionamiento;
+        });
+
+
+
         return view('estacionamiento.index', compact('estacionamientos', 'total'));
     }
 
@@ -44,11 +72,6 @@ class EstacionamientoController extends Controller
         return redirect()->route('estacionamiento.facturar', ['id' => $patente]);
             // exit;
         }
-
-
-
-
-
         
         // Verificar si ya existe un registro pendiente con esta patente
         $pendiente = Estacionamiento::where('patente', $patente)
@@ -63,7 +86,7 @@ class EstacionamientoController extends Controller
         // Crear nuevo registro
        $save = Estacionamiento::create([
             'patente' => $patente,
-            'ingreso' => now(),
+            'ingreso' => now()->timezone('America/Argentina/Buenos_Aires'),
             'servicio' => 'xHora'
         ]);
         $this->printTicket($patente,$save->id);
@@ -106,14 +129,25 @@ class EstacionamientoController extends Controller
         $estacionamiento = Estacionamiento::findOrFail($id);
         
         // Si ya está facturado, redirigir al índice
-        if ($estacionamiento->salida !== null) {
-            return redirect()->route('estacionamiento.index')
-                            ->with('warning', 'Este registro ya ha sido facturado.');
+        if ($estacionamiento->total !== null) {
+
+            if ($estacionamiento->mediodepago !== 'Pendiente') {
+                return redirect()->route('estacionamiento.index')
+                                ->with('warning', 'Este registro ya ha sido facturado.');
+            }else{//Pendiente
+                $total = $estacionamiento->total;
+                $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($estacionamiento->salida);
+                $total = $this->calcularTotal($estacionamiento->servicio, $tiempoEstacionado);
+                return view('estacionamiento.facturar', compact('estacionamiento', 'tiempoEstacionado', 'total'));
+            }
         }
         
         // Calculamos el tiempo y el total a pagar según el servicio
-        $ahora = Carbon::now();
-        $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($ahora);
+        $ahora = Carbon::now()->timezone('America/Argentina/Buenos_Aires');
+        $estacionamiento->salida = $ahora;
+        $estacionamiento->save();
+
+        $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($estacionamiento->salida);
         
         $total = $this->calcularTotal($estacionamiento->servicio, $tiempoEstacionado);
         
@@ -123,24 +157,29 @@ class EstacionamientoController extends Controller
     /**
      * Procesar la facturación
      */
-    public function procesarFactura($id)
+    public function procesarFactura($id,Request $request)
     {
+
         $estacionamiento = Estacionamiento::findOrFail($id);
         
         // Si ya está facturado, redirigir al índice
-        if ($estacionamiento->salida !== null) {
-            return redirect()->route('estacionamiento.index')
-                            ->with('warning', 'Este registro ya ha sido facturado.');
+        if ($estacionamiento->mediodepago !== null) {
+            if ($estacionamiento->mediodepago !== 'Pendiente') {
+                return redirect()->route('estacionamiento.index')
+                ->with('warning', 'Este registro ya ha sido facturado.');
+            }
+
         }
         
-        $ahora = Carbon::now();
-        $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($ahora);
+        // $ahora = Carbon::now()->timezone('America/Argentina/Buenos_Aires');
+        $salida = $estacionamiento->salida;
+        $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($salida);
         
         $total = $this->calcularTotal($estacionamiento->servicio, $tiempoEstacionado);
         
         // Actualizar el registro
-        $estacionamiento->salida = $ahora;
         $estacionamiento->total = $total;
+        $estacionamiento->mediodepago = $request->mediodepago;;
         $estacionamiento->save();
         
         return redirect()->route('estacionamiento.index')
@@ -155,37 +194,37 @@ class EstacionamientoController extends Controller
         switch ($servicio) {
             case 'xHora':
                 // Primera media hora: $1,600
-                $total = 1700;
+                $total = 1900;
                 
                 // Después de los primeros 30 minutos, se suma $600 por cada 15 minutos adicionales
                 if ($minutos > 30) {
                     $minutosAdicionales = $minutos - 30;
                     $periodosDe15 = ceil($minutosAdicionales / 15);
-                    $total += $periodosDe15 * 850;
+                    $total += $periodosDe15 * 950;
                 }
                 return $total;
 
             case 'xHoraMoto':
                 // Primera media hora: $1,600
-                $total = 850;
+                $total = 950;
                 
                 // Después de los primeros 30 minutos, se suma $600 por cada 15 minutos adicionales
                 if ($minutos > 30) {
                     $minutosAdicionales = $minutos - 30;
                     $periodosDe15 = ceil($minutosAdicionales / 15);
-                    $total += $periodosDe15 * 425;
+                    $total += $periodosDe15 * 475;
                 }
                 return $total;
                 
             case 'Estadía6':
-                return 12000;
+                return 15000;
 
             case 'Estadía12':
 
-                return 15000;
+                return 20000;
             case 'Estadía24':
 
-                return 25000;
+                return 30000;
 
             case 'Lavado13':
                 return 13000;
@@ -209,7 +248,7 @@ class EstacionamientoController extends Controller
         // }
         
         // Calculamos el tiempo y el total a pagar según el servicio
-        $otros = Carbon::now();
+        $otros = Carbon::now()->timezone('America/Argentina/Buenos_Aires');
         $ingresos=0;
         
         // $total = 3;
@@ -217,14 +256,13 @@ class EstacionamientoController extends Controller
 
 
 
-        $estacionamientos = Estacionamiento::orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
-        $ventas = '$' . number_format($estacionamientos->sum('total'));
-        $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $estacionamientos->sum('total'), 0);
+        $estacionamientos = Estacionamiento::whereNull('cajasid')->orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
+        $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
+
+        $ventas = '$' . number_format($efectivo->sum('total'));
+        $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $efectivo->sum('total'), 0);
 
         $total = '$' . $subtotal ?? 'nulo';
-
-
-
 
 
         return view('estacionamiento.caja', compact('inicial', 'ventas', 'total'));
@@ -232,13 +270,23 @@ class EstacionamientoController extends Controller
 
     public function editCaja(Request $request)
     {
-        // $request->validate([
-        //     'patente' => 'required|string|min:3|max:8|regex:/^[A-Z0-9]+$/'
-        // ]);
+        // $inicial ='$' . number_format( Caja::orderBy('created_at', 'desc')->value('total'));
+        // $otros = Carbon::now()->timezone('America/Argentina/Buenos_Aires');
+        // $ingresos=0;
+        // $estacionamientos = Estacionamiento::orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
+        $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
+        // $ventas = '$' . number_format($efectivo->sum('total'));
+        $subtotal = Caja::orderBy('created_at', 'desc')->value('total') + $efectivo->sum('total')   ;
 
-        // Crear nuevo registro
+        // echo $subtotal;exit;
+        $total=($subtotal??0) - ($request->total??0);
+
+        $lastCaja = Caja::orderBy('created_at', 'desc')->value('id');
+        Estacionamiento::whereNot('mediodepago', 'Pendiente')->whereNotNull('total')->update(['cajasid' => $lastCaja]);
+
+
         Caja::create([
-            'total' => $request->total,
+            'total' => $total,
             'name' => 'Fito',
             // 'servicio' => 'xHora'
         ]);
@@ -293,8 +341,9 @@ class EstacionamientoController extends Controller
         $file = tempnam(sys_get_temp_dir(), 'ticket_') . '.txt';
         file_put_contents($file, $ticket);   
         //$printer = "\\\\192.168.100.4\\XP-58";
-
-        $printer = "\\\\192.168.129.4\\XP-58";
+        $ip="192.168.129.6";
+        // $printer = "\\\\192.168.129.4\\XP-58";
+        $printer = "\\\\$ip\\XP-58";
         $cmd = "copy \"$file\" \"$printer\"";
         $output = shell_exec($cmd);
         unlink($file);

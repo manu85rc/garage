@@ -65,18 +65,18 @@
                             </thead>
                             <tbody>
                                 @forelse ($estacionamientos as $estacionamiento)
-                                    <tr class="{{ is_null($estacionamiento->salida) ? 'table-warning' : '' }}">
+                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':'') }}">
                                         <td>{{ $estacionamiento->id }}</td>
                                         <td>{{ $estacionamiento->patente }}</td>
                                         <td>{{ $estacionamiento->ingreso->format('H:i') }}      {{ $estacionamiento->ingreso->format('d/m') == now()->format('d/m') ? '':$estacionamiento->ingreso->format('d/m') }}</td>
-                                        <td>{{ $estacionamiento->salida ? $estacionamiento->salida->format('H:i') : 'Pendiente' }}</td>
+                                        <td>{{ $estacionamiento->salida ? $estacionamiento->salida->format('H:i') : '' }}</td>
                                         <td>
                                             
                                             <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="serv">{{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}   </a>
                                         </td>
-                                        <td>{{ $estacionamiento->total ? '$' . number_format($estacionamiento->total, 0) : 'Pendiente' }}</td>
+                                        <td>{{ $estacionamiento->total ? '$' . number_format($estacionamiento->total, 0) : '' }} <b>{{$estacionamiento->mediodepago}}</b></td>
                                         <td>
-                                            @if (is_null($estacionamiento->salida))
+                                            @if (is_null($estacionamiento->mediodepago) or $estacionamiento->mediodepago == 'Pendiente')
                                                 <a href="{{ route('estacionamiento.facturar', $estacionamiento->id) }}" class="btn btn-sm btn-success">Facturar</a>
                                             @else
                                                 <span class="badge bg-secondary">Completado</span>

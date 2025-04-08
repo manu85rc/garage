@@ -26,6 +26,12 @@
                     
                     <form action="{{ route('estacionamiento.procesar-factura', $estacionamiento->id) }}" method="POST">
                         @csrf
+                        <select class="form-select mediodepago" aria-label="Default select example" name="mediodepago">
+                            <option value="Efectivo" selected>Efectivo</option>
+                            <option value="MP">Mercado pago</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Pendiente">Pendiente</option>
+                          </select>
                         
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary">Cancelar</a>

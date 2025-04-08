@@ -36,11 +36,11 @@
                         @csrf
                         <div class="input-group mb-3">
                             <input type="number"name="total" class="form-control @error('total') is-invalid @enderror" 
-                                   placeholder="Ingrese monto a retirar" 
+                                   placeholder="0"
                                    {{-- maxlength="8" 
                                    minlength="3" 
                                    oninput="this.value = this.value.toUpperCase()"  --}}
-                                   required>
+                                   >
                             <button class="btn btn-primary" type="submit">Retirar</button>
                             
                             {{-- @error('total')

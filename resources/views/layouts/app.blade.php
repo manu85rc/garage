@@ -36,6 +36,13 @@
             text-decoration: none;
             display: contents;
         }
+        .mediodepago{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 170px;
+            margin: auto
+        }
     </style>
 </head>
 <body>

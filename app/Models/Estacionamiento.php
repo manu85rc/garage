@@ -16,12 +16,14 @@ class Estacionamiento extends Model
         'ingreso',
         'salida',
         'servicio',
-        'total'
+        'total',
+        'mediodepago'
     ];
 
     protected $casts = [
         'ingreso' => 'datetime',
         'salida' => 'datetime',
-        'total' => 'decimal:2'
+        'total' => 'decimal:2',
+        'mediodepago' => 'string',
     ];
 }
