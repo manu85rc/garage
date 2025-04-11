@@ -61,15 +61,17 @@
                                     <th>Servicio</th>
                                     <th>Total</th>
                                     <th>Acciones</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($estacionamientos as $estacionamiento)
-                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':'') }}">
+                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':'') }} {{$estacionamiento->anular ? 'anular':''}}">
+                                        {{-- <td>{{ $estacionamiento->id }}</td> --}}
                                         <td>{{ $estacionamiento->id }}</td>
                                         <td>{{ $estacionamiento->patente }}</td>
                                         <td>{{ $estacionamiento->ingreso->format('H:i') }}      {{ $estacionamiento->ingreso->format('d/m') == now()->format('d/m') ? '':$estacionamiento->ingreso->format('d/m') }}</td>
-                                        <td>{{ $estacionamiento->salida ? $estacionamiento->salida->format('H:i') : '' }}</td>
+                                        <td>{{ $estacionamiento->total ? $estacionamiento->salida->format('H:i') : '' }}</td>
                                         <td>
                                             
                                             <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="serv">{{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}   </a>
@@ -82,19 +84,26 @@
                                                 <span class="badge bg-secondary">Completado</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if (is_null($estacionamiento->mediodepago) or $estacionamiento->mediodepago == 'Pendiente')
+                                                <button type="button" class="btn eliminar" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="eliminarEstacionamiento({{ $estacionamiento->id }}, '{{ $estacionamiento->patente }}')">
+                                                ❌
+                                                </button>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No hay registros disponibles</td>
+                                        <td colspan="8" class="text-center">No hay registros disponibles</td>
                                     </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="7" class="text-center">
+                                    <td colspan="8" class="text-center">
                                         {{-- No hay registros disponibles --}}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="7" class="text-center">
+                                    <td colspan="8" class="text-center">
                                         <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">  
                                         <b>{{$total}}</b>
                                     </a>
@@ -108,4 +117,49 @@
         </div>
     </div>
 </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="bodymodal">
+          ...
+        </div>
+        <div class="modal-footer" id="fotomodal">
+          {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger">Eliminar</button> --}}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    function eliminarEstacionamiento(id, patente) {
+        // const form = document.createElement('form');
+        // form.method = 'GET';
+        // form.action = `/estacionamiento/${id}/delete`; // Cambia esto a la ruta correcta para eliminar el registro
+
+        document.getElementById("bodymodal").innerHTML = `
+            Anular Patemte: <b>${patente}</b> ?
+        `;
+
+        document.getElementById("fotomodal").innerHTML = `
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a href="delete/${id}" class="btn btn-danger">Eliminar</a>
+        `;
+        // document.body.appendChild(form);
+        // form.submit();
+    }
+</script>
+
+
+
+
+
+
 @endsection

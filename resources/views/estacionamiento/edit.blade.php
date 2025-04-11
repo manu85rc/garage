@@ -31,8 +31,8 @@
                                 <option value="Estadía6" {{ $estacionamiento->servicio == 'Estadía6' ? 'selected' : '' }}>Estadía 6Hs ($15.000)</option>
                                 <option value="Estadía12" {{ $estacionamiento->servicio == 'Estadía12' ? 'selected' : '' }}>Estadía 12Hs ($20.000)</option>
                                 <option value="Estadía24" {{ $estacionamiento->servicio == 'Estadía24' ? 'selected' : '' }}>Estadía 24hs ($30.000)</option>
-                                <option value="Lavado13" {{ $estacionamiento->servicio == 'Lavado13' ? 'selected' : '' }}>Lavado 🚗($13.000)</option>
-                                <option value="Lavado16" {{ $estacionamiento->servicio == 'Lavado16' ? 'selected' : '' }}>Lavado 🚚($16.000)</option>
+                                <option value="Lavadoauto" {{ $estacionamiento->servicio == 'Lavadoauto' ? 'selected' : '' }}>Lavado 🚗($13.000)</option>
+                                <option value="Lavadochata" {{ $estacionamiento->servicio == 'Lavadochata' ? 'selected' : '' }}>Lavado 🚚($16.000)</option>
                             </select>
                             
                             @error('servicio')

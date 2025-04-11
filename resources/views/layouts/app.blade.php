@@ -43,6 +43,15 @@
             max-width: 170px;
             margin: auto
         }
+        .eliminar{
+            display: block;
+            margin: auto;
+            padding: 0;
+
+        }
+        .anular{
+            text-decoration:line-through!important;
+        }
     </style>
 </head>
 <body>

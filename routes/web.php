@@ -13,6 +13,13 @@ use App\Http\Controllers\EstacionamientoController;
 Route::get('/', [EstacionamientoController::class, 'index'])->name('estacionamiento.index');
 Route::post('/estacionamiento', [EstacionamientoController::class, 'store'])->name('estacionamiento.store');
 Route::get('/estacionamiento/{id}/edit', [EstacionamientoController::class, 'edit'])->name('estacionamiento.edit');
+
+Route::get('/delete/{id}', [EstacionamientoController::class, 'delete'])->name('estacionamiento.delete');
+// Route::post('/delete/{id}', [EstacionamientoController::class, 'delete'])->name('estacionamiento.delete');
+// estacionamiento/59/delete
+// http://garage/estacionamiento/59/delete
+// http://garage/estacionamiento/59/delete
+// estacionamiento/54/delete
 Route::put('/estacionamiento/{id}', [EstacionamientoController::class, 'update'])->name('estacionamiento.update');
 Route::get('/estacionamiento/{id}/facturar', [EstacionamientoController::class, 'facturar'])->name('estacionamiento.facturar');
 Route::post('/estacionamiento/{id}/facturar', [EstacionamientoController::class, 'procesarFactura'])->name('estacionamiento.procesar-factura');

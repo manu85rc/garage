@@ -14,38 +14,46 @@ class EstacionamientoController extends Controller
      */
     public function index()
     {
-        $estacionamientos = Estacionamiento::whereNull('cajasid')->orderBy('total', 'asc')->orderBy('salida', 'desc')->get();
+        $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')->orderBy('id', 'asc')->get();
 
-
-
-        $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
-
-
+        $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
+        /*
+        $lavados = Estacionamiento::whereIn('servicio', ['lavadoauto', 'lavadochata'])->count();
+--      echo $lavados;        exit;
+        */
 
         $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $efectivo->sum('total'), 0);
-        
 
         $total = '$' . $subtotal ?? 'nulo';
-        // echo $estacionamientos->mediodepago??'';
-        // exit;
-
-        // switch ($estacionamientos->mediodepago) {
-        //     case null:
-        //         $tot = '';
-        //         break;
-        //     case 'efectivo':
-        //         $tot = '$' . number_format($estacionamientos->total);
-        //         break;
-        //     default:
-        //         $tot = '$' . number_format($estacionamientos->total);//.$estacionamientos->mediodepago;
-        // }
 
        $estacionamientos->map(function ($estacionamiento) {
             $estacionamiento->mediodepago = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
+
+            switch ($estacionamiento->servicio) {
+                case 'xHora':
+                    return $estacionamiento->servicio = 'x Hora';
+                case 'xHoraMoto':
+                    return $estacionamiento->servicio = 'x Hora Moto';
+                case 'Estadía6':
+                    return  $estacionamiento->servicio = 'Estadía 6Hs';
+                case 'Estadía12':
+                    return    $estacionamiento->servicio = 'Estadía 12Hs';
+                case 'Estadía24':
+                    return   $estacionamiento->servicio = 'Estadía 24Hs';
+                case 'Lavadoauto':
+                    return   $estacionamiento->servicio = 'Lavado Auto';
+                case 'Lavadochata':
+                    return   $estacionamiento->servicio = 'Lavado Chata';
+                default:
+                return $estacionamiento->servicio = '';
+            }
+
+            // $estacionamiento->servicio = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
+
             return $estacionamiento;
         });
 
-
+        // $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
 
         return view('estacionamiento.index', compact('estacionamientos', 'total'));
     }
@@ -92,7 +100,7 @@ class EstacionamientoController extends Controller
         $this->printTicket($patente,$save->id);
         
         return redirect()->route('estacionamiento.index')
-                        ->with('success', 'Vehículo registrado correctamente.');
+                        ->with('success', 'Nuevo Ingreso '.$patente.' registrado correctamente.');
     }
 
     /**
@@ -104,13 +112,35 @@ class EstacionamientoController extends Controller
         return view('estacionamiento.edit', compact('estacionamiento'));
     }
 
+
+
+    public function delete($id)
+    {
+        Estacionamiento::where('id', $id)->update(['anular' => 1]);
+
+
+
+
+        // $estacionamiento = Estacionamiento::findOrFail($id);
+        // return view('estacionamiento.edit', compact('estacionamiento'));
+
+        return redirect()->route('estacionamiento.index')
+                        ->with('warning', 'registro anulado');
+
+
+    }
+
+
+
+
+
     /**
      * Actualizar servicio del estacionamiento
      */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'servicio' => 'required|in:xHora,xHoraMoto,Estadía6,Estadía12,Estadía24,Lavado13,Lavado16'
+            'servicio' => 'required|in:xHora,xHoraMoto,Estadía6,Estadía12,Estadía24,Lavadoauto,Lavadochata'
         ]);
         
         $estacionamiento = Estacionamiento::findOrFail($id);
@@ -191,28 +221,31 @@ class EstacionamientoController extends Controller
      */
     private function calcularTotal($servicio, $minutos)
     {
+
+        $minutos = $minutos-5;
+
         switch ($servicio) {
             case 'xHora':
                 // Primera media hora: $1,600
-                $total = 1900;
+                $total = 2000;
                 
                 // Después de los primeros 30 minutos, se suma $600 por cada 15 minutos adicionales
                 if ($minutos > 30) {
                     $minutosAdicionales = $minutos - 30;
                     $periodosDe15 = ceil($minutosAdicionales / 15);
-                    $total += $periodosDe15 * 950;
+                    $total += $periodosDe15 * 1000;
                 }
                 return $total;
 
             case 'xHoraMoto':
                 // Primera media hora: $1,600
-                $total = 950;
+                $total = 1000;
                 
                 // Después de los primeros 30 minutos, se suma $600 por cada 15 minutos adicionales
                 if ($minutos > 30) {
                     $minutosAdicionales = $minutos - 30;
                     $periodosDe15 = ceil($minutosAdicionales / 15);
-                    $total += $periodosDe15 * 475;
+                    $total += $periodosDe15 * 500;
                 }
                 return $total;
                 
@@ -226,10 +259,10 @@ class EstacionamientoController extends Controller
 
                 return 30000;
 
-            case 'Lavado13':
+            case 'Lavadoauto':
                 return 13000;
 
-            case 'Lavado16':
+            case 'Lavadochata':
                 return 16000;
                 
             default:
@@ -254,16 +287,13 @@ class EstacionamientoController extends Controller
         // $total = 3;
         
 
-
-
-        $estacionamientos = Estacionamiento::whereNull('cajasid')->orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
-        $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
+        $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')->orderBy('total', 'asc')->orderBy('ingreso', 'desc')->get();
+        $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
 
         $ventas = '$' . number_format($efectivo->sum('total'));
         $subtotal = number_format(Caja::orderBy('created_at', 'desc')->value('total') + $efectivo->sum('total'), 0);
 
         $total = '$' . $subtotal ?? 'nulo';
-
 
         return view('estacionamiento.caja', compact('inicial', 'ventas', 'total'));
     }
@@ -282,8 +312,7 @@ class EstacionamientoController extends Controller
         $total=($subtotal??0) - ($request->total??0);
 
         $lastCaja = Caja::orderBy('created_at', 'desc')->value('id');
-        Estacionamiento::whereNot('mediodepago', 'Pendiente')->whereNotNull('total')->update(['cajasid' => $lastCaja]);
-
+        Estacionamiento::whereNot('mediodepago', 'Pendiente')->whereNull('anular')->whereNotNull('total')->update(['cajasid' => $lastCaja]);
 
         Caja::create([
             'total' => $total,
@@ -294,9 +323,6 @@ class EstacionamientoController extends Controller
         return redirect()->route('estacionamiento.index')
                         ->with('success', 'Retiro Correcto.');
     }
-
-
-
 
 
     public function printTicket($patente, $id)
