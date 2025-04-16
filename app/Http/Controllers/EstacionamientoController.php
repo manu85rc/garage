@@ -15,7 +15,7 @@ class EstacionamientoController extends Controller
     public function index()
     {
         $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')
-        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24'])->whereNull('anular')
+        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24'])->whereNull('anular')->where('ingreso', '>=', Carbon::now()->sub('25 hour'))
         ->orderBy('id', 'asc')->get();
 
         $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
