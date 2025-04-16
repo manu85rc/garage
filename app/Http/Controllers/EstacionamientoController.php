@@ -390,7 +390,7 @@ class EstacionamientoController extends Controller
         $file = tempnam(sys_get_temp_dir(), 'ticket_') . '.txt';
         file_put_contents($file, $ticket);   
         //$printer = "\\\\192.168.100.4\\XP-58";
-        $ip="192.168.129.6";
+        $ip="192.168.129.7";
         // $printer = "\\\\192.168.129.4\\XP-58";
         $printer = "\\\\$ip\\XP-58";
         $cmd = "copy \"$file\" \"$printer\"";
