@@ -27,7 +27,46 @@
         .inputpatente   input{
             font-size: 48px
         }
-        .serv{
+        .servicio{
+            color: #000;
+            text-align: center;
+            /* background-color: #f8f9fa; */
+            /* border-color: #000; */
+            /* padding: none!important; */
+            /* border-radius: 0.5rem; */
+            /* font-size: 28px; */
+            text-decoration: none;
+            font-weight: bold!important;
+            /* display: contents; */
+
+            width: 175px!important;
+        }
+
+
+        .servicio select{
+            font-weight: bold!important;    
+            border-color: transparent!important;
+            background-color: transparent!important;
+            cursor: pointer;
+            text-align: center
+            
+        }
+
+        .servicio select:hover{
+            border-color: gray!important;
+        }
+
+        .servicio select:disabled{
+            border-color: transparent!important;
+            cursor: auto!important;
+            appearance: none!important;
+  -webkit-appearance: none!important;
+  -moz-appearance: none!important;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); /* Flecha SVG básica */
+  background-repeat: no-repeat;
+
+        }
+        /* .serv{
             color: #000;
             background-color: #f8f9fa;
             border-color: #f8f9fa;
@@ -35,7 +74,7 @@
             border-radius: 0.25rem;
             text-decoration: none;
             display: contents;
-        }
+        } */
         .mediodepago{
             display: flex;
             justify-content: center;
@@ -51,6 +90,9 @@
         }
         .anular{
             text-decoration:line-through!important;
+        }
+        .cursor{
+            cursor: pointer!important;
         }
     </style>
 </head>

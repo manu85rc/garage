@@ -14,7 +14,9 @@ class EstacionamientoController extends Controller
      */
     public function index()
     {
-        $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')->orderBy('id', 'asc')->get();
+        $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')
+        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24'])->whereNull('anular')
+        ->orderBy('id', 'asc')->get();
 
         $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
         /*
@@ -28,25 +30,36 @@ class EstacionamientoController extends Controller
 
        $estacionamientos->map(function ($estacionamiento) {
             $estacionamiento->mediodepago = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
-
+            $estacionamiento->estadia=false;
             switch ($estacionamiento->servicio) {
-                case 'xHora':
-                    return $estacionamiento->servicio = 'x Hora';
-                case 'xHoraMoto':
-                    return $estacionamiento->servicio = 'x Hora Moto';
                 case 'Estadía6':
-                    return  $estacionamiento->servicio = 'Estadía 6Hs';
+                    $estacionamiento->estadia=true;
+                    break;
                 case 'Estadía12':
-                    return    $estacionamiento->servicio = 'Estadía 12Hs';
+                    $estacionamiento->estadia=true;
+                    break;
                 case 'Estadía24':
-                    return   $estacionamiento->servicio = 'Estadía 24Hs';
-                case 'Lavadoauto':
-                    return   $estacionamiento->servicio = 'Lavado Auto';
-                case 'Lavadochata':
-                    return   $estacionamiento->servicio = 'Lavado Chata';
-                default:
-                return $estacionamiento->servicio = '';
+                    $estacionamiento->estadia=true;
+                    break;
             }
+            // switch ($estacionamiento->servicio) {
+            //     case 'xHora':
+            //         return $estacionamiento->servicio = 'x Hora';
+            //     case 'xHoraMoto':
+            //         return $estacionamiento->servicio = 'x Hora Moto';
+            //     case 'Estadía6':
+            //         return  $estacionamiento->servicio = 'Estadía 6Hs';
+            //     case 'Estadía12':
+            //         return    $estacionamiento->servicio = 'Estadía 12Hs';
+            //     case 'Estadía24':
+            //         return   $estacionamiento->servicio = 'Estadía 24Hs';
+            //     case 'Lavadoauto':
+            //         return   $estacionamiento->servicio = 'Lavado Auto';
+            //     case 'Lavadochata':
+            //         return   $estacionamiento->servicio = 'Lavado Chata';
+            //     default:
+            //     return $estacionamiento->servicio = '';
+            // }
 
             // $estacionamiento->servicio = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
 
@@ -82,7 +95,7 @@ class EstacionamientoController extends Controller
         }
         
         // Verificar si ya existe un registro pendiente con esta patente
-        $pendiente = Estacionamiento::where('patente', $patente)
+        $pendiente = Estacionamiento::where('patente', $patente)->whereNull('anular')
                                     ->whereNull('salida')
                                     ->first();
         
@@ -180,6 +193,16 @@ class EstacionamientoController extends Controller
         $tiempoEstacionado = $estacionamiento->ingreso->diffInMinutes($estacionamiento->salida);
         
         $total = $this->calcularTotal($estacionamiento->servicio, $tiempoEstacionado);
+        
+       
+            switch ($estacionamiento->servicio) {
+                case 'xHora':
+                case 'xHoraMoto':
+                case 'Estadía6':
+                $estacionamiento->time = true;
+                break;
+            }
+   
         
         return view('estacionamiento.facturar', compact('estacionamiento', 'tiempoEstacionado', 'total'));
     }

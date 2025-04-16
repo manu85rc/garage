@@ -6,14 +6,14 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h2>Facturar Estacionamiento</h2>
+                    <h2>Facturar {{ $estacionamiento->servicio }}</h2>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
                         <h4>Resumen del Servicio</h4>
                         <p><strong>Patente:</strong> {{ $estacionamiento->patente }}</p>
                         <p><strong>Ingreso:</strong> {{ $estacionamiento->ingreso->format('d/m/Y H:i') }}</p>
-                        <p><strong>Tiempo estacionado:</strong> 
+                        <p class="{{($estacionamiento->time ? '':'d-none')}}"><strong>Tiempo estacionado:</strong> 
                             @php
                                 $horas = floor($tiempoEstacionado / 60);
                                 $minutos = $tiempoEstacionado % 60;

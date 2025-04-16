@@ -44,10 +44,47 @@
                         </div>
                     </form>
                     <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const input = document.querySelector('input[name="patente"]');
-                            input.focus();
-                        });
+document.addEventListener('DOMContentLoaded', function() {
+    const patenteInput = document.querySelector('input[name="patente"]');
+    
+    // Enfoca el input inicialmente
+    patenteInput.focus();
+    
+    // Captura clics en cualquier parte del documento
+    document.addEventListener('click', function(event) {
+        // Evita redireccionar el foco si el usuario está interactuando con otro input o select
+        const isFormElement = event.target.tagName === 'INPUT' || 
+                             event.target.tagName === 'SELECT' || 
+                             event.target.tagName === 'TEXTAREA' || 
+                             event.target.tagName === 'BUTTON';
+        
+        if (!isFormElement) {
+            event.preventDefault();
+            patenteInput.focus();
+        }
+    });
+    
+    // Captura pulsaciones de teclas en cualquier parte del documento
+    document.addEventListener('keydown', function(event) {
+        // Evita redireccionar el foco si el usuario está escribiendo en otro input o select
+        const activeElement = document.activeElement;
+        const isFormElement = activeElement.tagName === 'INPUT' || 
+                             activeElement.tagName === 'SELECT' || 
+                             activeElement.tagName === 'TEXTAREA';
+        
+        if (!isFormElement || activeElement !== patenteInput) {
+            // No interfiere con teclas de control como F5, Ctrl+R, etc.
+            if (!event.ctrlKey && !event.altKey && !event.metaKey && event.key !== 'F5') {
+                patenteInput.focus();
+            }
+        }
+    });
+    
+    // Enfoca el input cuando la ventana recupera el foco
+    window.addEventListener('focus', function() {
+        patenteInput.focus();
+    });
+});
                         </script>
                     <!-- Tabla de registros -->
                     <div class="table-responsive">
@@ -66,20 +103,50 @@
                             </thead>
                             <tbody>
                                 @forelse ($estacionamientos as $estacionamiento)
-                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':'') }} {{$estacionamiento->anular ? 'anular':''}}">
+                                
+                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':($estacionamiento->estadia ? 'table-success':'')) }} {{$estacionamiento->anular ? 'anular':''}}">
                                         {{-- <td>{{ $estacionamiento->id }}</td> --}}
                                         <td>{{ $estacionamiento->id }}</td>
                                         <td>{{ $estacionamiento->patente }}</td>
                                         <td>{{ $estacionamiento->ingreso->format('H:i') }}      {{ $estacionamiento->ingreso->format('d/m') == now()->format('d/m') ? '':$estacionamiento->ingreso->format('d/m') }}</td>
                                         <td>{{ $estacionamiento->total ? $estacionamiento->salida->format('H:i') : '' }}</td>
-                                        <td>
-                                            
-                                            <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="serv">{{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}   </a>
+                                        <td id="servicio" class="servicio" >
+
+
+                                            {{-- <div class="mb-3"> --}}
+                                                {{-- <label for="servicio" class="form-label">Servicio</label> --}}
+                                                <select id="servicioid" name="servicio" class="form-select @error('servicio') is-invalid @enderror"  onchange="ServiciosEstacionamiento({{ $estacionamiento->id }}, '{{ $estacionamiento->patente }}',this.value)" {{($estacionamiento->total) ? 'disabled':''}}>
+                                                    <option value="xHora" {{ $estacionamiento->servicio == 'xHora' ? 'selected' : '' }}>x Hora</option>
+                                                    <option value="xHoraMoto" {{ $estacionamiento->servicio == 'xHoraMoto' ? 'selected' : '' }}>Por Hora Moto</option>
+                                                    <option value="Estadía6" {{ $estacionamiento->servicio == 'Estadía6' ? 'selected' : '' }}>Estadía 6Hs</option>
+                                                    <option value="Estadía12" {{ $estacionamiento->servicio == 'Estadía12' ? 'selected' : '' }}>Estadía 12Hs</option>
+                                                    <option value="Estadía24" {{ $estacionamiento->servicio == 'Estadía24' ? 'selected' : '' }}>Estadía 24hs</option>
+                                                    <option value="Lavadoauto" {{ $estacionamiento->servicio == 'Lavadoauto' ? 'selected' : '' }}>Lavado Auto</option>
+                                                    <option value="Lavadochata" {{ $estacionamiento->servicio == 'Lavadochata' ? 'selected' : '' }}>Lavado Chata</option>
+                                                </select>
+                                                
+                                                @error('servicio')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            {{-- </div> --}}
+                                            {{-- {{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}  --}}
+
+
+
+
+
+                                            {{-- <button type="button" class="btn eliminar" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="eliminarEstacionamiento({{ $estacionamiento->id }}, '{{ $estacionamiento->patente }}')"> --}}
+
+                                            {{-- </button> --}}
+                                            {{-- <a href="{{ route('estacionamiento.edit', $estacionamiento->id) }}" class="serv">{{ $estacionamiento->servicio ? $estacionamiento->servicio :'Editar' }}   </a> --}}
                                         </td>
                                         <td>{{ $estacionamiento->total ? '$' . number_format($estacionamiento->total, 0) : '' }} <b>{{$estacionamiento->mediodepago}}</b></td>
                                         <td>
                                             @if (is_null($estacionamiento->mediodepago) or $estacionamiento->mediodepago == 'Pendiente')
-                                                <a href="{{ route('estacionamiento.facturar', $estacionamiento->id) }}" class="btn btn-sm btn-success">Facturar</a>
+
+                                                <button onclick="window.location.href = `{{ route('estacionamiento.facturar', $estacionamiento->id ) }}`" class="btn btn-sm btn-success">Facturar</button>
                                             @else
                                                 <span class="badge bg-secondary">Completado</span>
                                             @endif
@@ -103,8 +170,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="8" class="text-center">
-                                        <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">  
+                                    <td colspan="8" class="text-center cursor" onclick="window.location.href = '{{ route('estacionamiento.caja') }}'">                                        {{-- <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">   --}}
+                       
                                         <b>{{$total}}</b>
                                     </a>
                                     </td>
@@ -139,6 +206,22 @@
   </div>
 
 <script>
+function ServiciosEstacionamiento(id, patente, servicio) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/estacionamiento/${id}`;
+        form.innerHTML = `
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="servicio" value="${servicio}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+
+console.log(servicio)
+
+    }
+
     function eliminarEstacionamiento(id, patente) {
         // const form = document.createElement('form');
         // form.method = 'GET';
@@ -148,9 +231,15 @@
             Anular Patemte: <b>${patente}</b> ?
         `;
 
+
+
+
+        
         document.getElementById("fotomodal").innerHTML = `
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <a href="delete/${id}" class="btn btn-danger">Eliminar</a>
+      
+        
+          <button type="button" class="btn btn-danger" onclick="window.location.href = '/delete/${id}'">Eliminar</button>
         `;
         // document.body.appendChild(form);
         // form.submit();
