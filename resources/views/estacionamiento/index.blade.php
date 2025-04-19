@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <tbody>
                                 @forelse ($estacionamientos as $estacionamiento)
                                 
-                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':($estacionamiento->estadia ? 'table-success':'')) }} {{$estacionamiento->anular ? 'anular':''}}">
+                                    <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':($estacionamiento->estadia ? 'table-success':($estacionamiento->lavado ? 'table-primary':''))) }} {{$estacionamiento->anular ? 'anular':''}}">
                                         {{-- <td>{{ $estacionamiento->id }}</td> --}}
                                         <td>{{ $estacionamiento->id }}</td>
                                         <td> <strong>{{ $estacionamiento->patente }}</strong></td>
@@ -170,8 +170,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="8" class="text-center cursor" onclick="window.location.href = '{{ route('estacionamiento.caja') }}'">                                        {{-- <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">   --}}
-                       
+                                    <td colspan="4">Lavados: {{$lavadoshoy}}</td>
+                                    <td colspan="4" class="text-center cursor" onclick="window.location.href = '{{ route('estacionamiento.caja') }}'">                                        {{-- <a href="{{ route('estacionamiento.caja') }}" class="btn btn-sm btn">   --}}
+                                        
                                         <b>{{$total}}</b>
                                     </a>
                                     </td>

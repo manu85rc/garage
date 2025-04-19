@@ -15,7 +15,7 @@ class EstacionamientoController extends Controller
     public function index()
     {
         $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')
-        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24'])->whereNull('anular')->where('ingreso', '>=', Carbon::now()->sub('25 hour'))
+        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24','Lavadoauto','Lavadochata'])->whereNull('anular')->where('ingreso', '>=', Carbon::now()->sub('25 hour'))
         ->orderBy('id', 'asc')->get();
 
         $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
@@ -31,6 +31,7 @@ class EstacionamientoController extends Controller
        $estacionamientos->map(function ($estacionamiento) {
             $estacionamiento->mediodepago = $estacionamiento->mediodepago == 'Efectivo' ? '':($estacionamiento->mediodepago == 'Tarjeta' ? '💳':$estacionamiento->mediodepago);
             $estacionamiento->estadia=false;
+            $estacionamiento->lavado=false;
             switch ($estacionamiento->servicio) {
                 case 'Estadía6':
                     $estacionamiento->estadia=true;
@@ -40,6 +41,12 @@ class EstacionamientoController extends Controller
                     break;
                 case 'Estadía24':
                     $estacionamiento->estadia=true;
+                    break;
+                case 'Lavadoauto':
+                    $estacionamiento->lavado=true;
+                    break;
+                case 'Lavadochata':
+                    $estacionamiento->lavado=true;
                     break;
             }
             // switch ($estacionamiento->servicio) {
@@ -68,7 +75,12 @@ class EstacionamientoController extends Controller
 
         // $efectivo = Estacionamiento::whereNull('cajasid')->where('mediodepago', 'Efectivo')->get();
 
-        return view('estacionamiento.index', compact('estacionamientos', 'total'));
+
+
+        $lavadoshoy = Estacionamiento::whereIn('servicio', ['Lavadoauto', 'Lavadochata'])->whereDate('ingreso', Carbon::today())->count();
+        $lavadosayer = Estacionamiento::whereIn('servicio', ['Lavadoauto', 'Lavadochata'])->whereDate('ingreso', Carbon::yesterday())->count();
+
+        return view('estacionamiento.index', compact('estacionamientos', 'total', 'lavadoshoy', 'lavadosayer'));
     }
 
     /**
