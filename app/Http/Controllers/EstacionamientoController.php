@@ -232,6 +232,7 @@ class EstacionamientoController extends Controller
         
         // Actualizar el registro
         $estacionamiento->total = $total;
+        //$estacionamiento->salida = $salida;
         $estacionamiento->mediodepago = $request->mediodepago;;
         $estacionamiento->save();
         

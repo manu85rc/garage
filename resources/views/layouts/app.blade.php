@@ -27,6 +27,23 @@
         .inputpatente   input{
             font-size: 48px
         }
+
+        .table{
+            vertical-align: middle;
+            text-align: center
+        }
+        .table td{
+            vertical-align: middle;
+            text-align: center
+        }
+
+
+
+
+
+
+
+
         .servicio{
             color: #000;
             text-align: center;
@@ -41,15 +58,12 @@
 
             width: 175px!important;
         }
-
-
         .servicio select{
             font-weight: bold!important;    
             border-color: transparent!important;
             background-color: transparent!important;
             cursor: pointer;
             text-align: center
-            
         }
 
         .servicio select:hover{
@@ -60,11 +74,10 @@
             border-color: transparent!important;
             cursor: auto!important;
             appearance: none!important;
-  -webkit-appearance: none!important;
-  -moz-appearance: none!important;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); /* Flecha SVG básica */
-  background-repeat: no-repeat;
-
+            -webkit-appearance: none!important;
+            -moz-appearance: none!important;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); /* Flecha SVG básica */
+            background-repeat: no-repeat;
         }
         /* .serv{
             color: #000;
@@ -79,7 +92,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            max-width: 170px;
+            max-width: 200px;
             margin: auto
         }
         .eliminar{
@@ -94,6 +107,20 @@
         .cursor{
             cursor: pointer!important;
         }
+
+        /* #main {
+            width: 220px;
+            height: 300px;
+            border: 1px solid black; 
+            display: flex;
+            align-items: center;
+        }
+        #main div {
+            flex: 1;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            } */
     </style>
 </head>
 <body>

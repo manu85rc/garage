@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <tr class="{{ is_null($estacionamiento->mediodepago) ? 'table-warning' :($estacionamiento->mediodepago == 'Pendiente'? 'table-danger':($estacionamiento->estadia ? 'table-success':'')) }} {{$estacionamiento->anular ? 'anular':''}}">
                                         {{-- <td>{{ $estacionamiento->id }}</td> --}}
                                         <td>{{ $estacionamiento->id }}</td>
-                                        <td>{{ $estacionamiento->patente }}</td>
+                                        <td> <strong>{{ $estacionamiento->patente }}</strong></td>
                                         <td>{{ $estacionamiento->ingreso->format('H:i') }}      {{ $estacionamiento->ingreso->format('d/m') == now()->format('d/m') ? '':$estacionamiento->ingreso->format('d/m') }}</td>
                                         <td>{{ $estacionamiento->total ? $estacionamiento->salida->format('H:i') : '' }}</td>
                                         <td id="servicio" class="servicio" >
@@ -146,9 +146,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <td>
                                             @if (is_null($estacionamiento->mediodepago) or $estacionamiento->mediodepago == 'Pendiente')
 
-                                                <button onclick="window.location.href = `{{ route('estacionamiento.facturar', $estacionamiento->id ) }}`" class="btn btn-sm btn-success">Facturar</button>
+                                                <button onclick="window.location.href = `{{ route('estacionamiento.facturar', $estacionamiento->id ) }}`" class="btn btn-sm btn-success">Cobrar</button>
                                             @else
-                                                <span class="badge bg-secondary">Completado</span>
+                                                {{-- <span class="badge bg-secondary">Completado</span> --}}
                                             @endif
                                         </td>
                                         <td>
