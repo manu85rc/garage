@@ -15,7 +15,7 @@ class EstacionamientoController extends Controller
     public function index()
     {
         $estacionamientos = Estacionamiento::whereNull('cajasid')->whereNull('anular')
-        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24','Lavadoauto','Lavadochata'])->whereNull('anular')->where('ingreso', '>=', Carbon::now()->sub('25 hour'))
+        ->orwhereIn('servicio', ['Estadía6', 'Estadía6', 'Estadía12', 'Estadía24'])->whereNull('anular')->where('ingreso', '>=', Carbon::now()->sub('25 hour'))
         ->orderBy('id', 'asc')->get();
 
         $efectivo = Estacionamiento::whereNull('cajasid')->whereNull('anular')->where('mediodepago', 'Efectivo')->get();
@@ -35,12 +35,15 @@ class EstacionamientoController extends Controller
             switch ($estacionamiento->servicio) {
                 case 'Estadía6':
                     $estacionamiento->estadia=true;
+                    $estacionamiento->salida= $estacionamiento->ingreso->addHours(6);
                     break;
                 case 'Estadía12':
                     $estacionamiento->estadia=true;
+                    $estacionamiento->salida= $estacionamiento->ingreso->addHours(12);
                     break;
                 case 'Estadía24':
                     $estacionamiento->estadia=true;
+                    $estacionamiento->salida= $estacionamiento->ingreso->addHours(24);
                     break;
                 case 'Lavadoauto':
                     $estacionamiento->lavado=true;
@@ -48,6 +51,8 @@ class EstacionamientoController extends Controller
                 case 'Lavadochata':
                     $estacionamiento->lavado=true;
                     break;
+                    default:
+                    $estacionamiento->salida = $estacionamiento->total ? $estacionamiento->salida->format('H:i') : '' ;
             }
             // switch ($estacionamiento->servicio) {
             //     case 'xHora':
@@ -152,10 +157,7 @@ class EstacionamientoController extends Controller
         return redirect()->route('estacionamiento.index')
                         ->with('warning', 'registro anulado');
 
-
     }
-
-
 
 
 
@@ -170,6 +172,14 @@ class EstacionamientoController extends Controller
         
         $estacionamiento = Estacionamiento::findOrFail($id);
         $estacionamiento->servicio = $request->servicio;
+
+
+
+
+
+
+
+
         $estacionamiento->save();
         
         return redirect()->route('estacionamiento.index')
@@ -244,6 +254,7 @@ class EstacionamientoController extends Controller
         
         // Actualizar el registro
         $estacionamiento->total = $total;
+
         //$estacionamiento->salida = $salida;
         $estacionamiento->mediodepago = $request->mediodepago;;
         $estacionamiento->save();

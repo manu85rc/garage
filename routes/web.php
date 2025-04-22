@@ -60,3 +60,7 @@ Route::get('/ticket', function () {
 
 // });
 Route::get('/ticket2', [PrintController::class, 'imprimirPdf'])->name('imprimir.pdf');
+
+Route::get('/offline', function () {
+    return view('vendor.laravelpwa.offline');
+});

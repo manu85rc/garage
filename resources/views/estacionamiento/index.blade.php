@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function ServiciosEstacionamiento(id, patente, servicio) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/estacionamiento/${id}`;
+        form.action = `estacionamiento/${id}`;
         form.innerHTML = `
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="_method" value="PUT">
@@ -240,7 +240,7 @@ console.log(servicio)
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
       
         
-          <button type="button" class="btn btn-danger" onclick="window.location.href = '/delete/${id}'">Eliminar</button>
+          <button type="button" class="btn btn-danger" onclick="window.location.href = 'delete/${id}'">Eliminar</button>
         `;
         // document.body.appendChild(form);
         // form.submit();
